@@ -62,7 +62,7 @@ We compare our proposed method with a large quantity of time series analysis bas
 
 ## 2. Ablation Study
 
-To evaluate the contribution of the key components in C2FFormer, we perform ablation experiments by removing the Error Correction (EC) module and the Autoregressive Patching (AP) mechanism individually. Table below reports the results under RM with 50% missing rates and BMW scenarios. Removing the EC module and AP mechanism increases MAE by 32.0% and 57.0%, respectively, in the RM scenario, while in BMW the increases reach 41.7% and 29.7%. These results demonstrate that both EC and AP are essential for achieving accurate imputation. AP is particularly important for handling imputation under the BMW scenario, while EC provides consistent accuracy improvements in both RM and BMW settings.
+To evaluate the contribution of the key components in C2FFormer, we perform ablation experiments by removing the Error Correction (EC) module and the Autoregressive Patching (AP) mechanism individually. Table below reports the results under RM with 50% missing rates and BMW scenarios. Removing the EC module and AP mechanism increases MAE by 31.25% and 47.17%, respectively, in the RM scenario, while in BMW the increases reach 34.46% and 24.99%. These results demonstrate that both EC and AP are essential for achieving accurate imputation. AP is particularly important for handling imputation under the BMW scenario, while EC provides consistent accuracy improvements in both RM and BMW settings.
 
 ![as](README.assets/as.png)
 
