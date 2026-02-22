@@ -4,16 +4,13 @@
 
 # Abstract
 
-Time series imputation is essential in many scientific and industrial applications. However, real-world data often exhibit highly variable and block-wise missing patterns, posing challenges to existing methods that assume fixed missing rates and perform well only under random missingness. Inspired by autoregressive training paradigm of language models that emulate human reasoning, we propose a Transformer-based imputation framework with a coarse-to-fine reconstruction strategy. The input series is firstly discretized into multi-resolution patches, and the model then autoregressively predicts fine-grained sequences from coarser representations using causal attention. This progressive training enables the model to capture multi-scale temporal structures and supports zero-shot inference across varying missing scenarios. Experiments on four real-world datasets against 24 recent baselines show that, once trained, our method can be directly applied to diverse missing scenarios, consistently achieves high accuracy, and reduces imputation error by up to 95.09% in challenging block-missing settings. 
+Time series imputation is a fundamental task across a wide range of scientific and industrial domains. In many real-world scenarios, the proportion of missing data is highly variable and often exhibits block-wise missing patterns. This poses a significant challenge for existing imputation methods, which are designed for fixed missing rates and can only perform well in randomly missing scenario. Inspired by the autoregressive training paradigm of language models that emulate human reasoning, we propose a novel Transformer-based imputation framework featuring a coarse-to-fine reconstruction strategy. **Specifically, the original sequence is discretized into multi-resolution patches, and the model is trained to predict finer-grained sequences conditioned on coarser ones via autoregressive attention with causal masking.** This progressive training enables the Transformer to capture multi-scale temporal patterns and understand underlying time series structures, thereby equipping it with zero-shot inference capability. It enables strong generalization across different missing rates and robust inference under block-wise missingness. We conduct extensive experiments on four real-world datasets and compare our method with 24 recent baselines. The results demonstrate our model, once trained, achieves consistently high imputation accuracy across various missing rates. Remarkably, in challenging block-missing scenarios, our method reduces imputation error by up to 46.7\% compared to the best-performing baseline. 
 
 # overview of C2FFormer
-
 <div style="display: flex; justify-content: space-between;">
-  <img src="README.assets/image-20251121123640703.png" width="45%" />
   <img src="README.assets/image-20251121123630804.png" width="45%" />
+  <img src="README.assets/image-20251121123640703.png" width="45%" />
 </div>
-
-
 
 
 Training and inference process of C2FFormer: Left: The input sequence is first discretized into multi-resolution patches using two types of patching strategies; then, an autoregressive Transformer learns the dependencies across resolutions; finally, the model is optimized using the MSE loss between the predicted and ground-truth sequences. Right: The sequence with missing values is progressively imputed with K steps. At each step, an error correction mechanism refines the predictions, leading to the final reconstructed sequence.
@@ -38,7 +35,9 @@ pyyaml>=6.0.1
 
 ## Datasets
 
-We conduct experiments on four real world datasets: Italy Air, Electricity, PhysioNet and PeMS. They come from four domains: environmental monitoring, energy system, healthcare and road traffic, and are all retrieved from [TSDB](https://github.com/WenjieDu/TSDB)
+We evaluate our method on six real-world time series datasets: **Beijing Air**, **Italy Air**, **Electricity**, **Pedestrian**, **PhysioNet**, and **PeMS**. These datasets span six distinct domains—air quality, urban pedestrian flow, electricity consumption, road traffic, and physiological signals—and are all retrieved from [TSDB](https://github.com/WenjieDu/TSDB)
+
+![image-20260222085324384](README.assets/image-20260222085324384.png)
 
 # Train and Infernce
 
@@ -50,31 +49,38 @@ python train.py
 
 ## 1. Baseline
 
-We compare our proposed method with a large quantity of time series analysis baselines, covering RNNs (MRNN, BRITS, GRUD), GANs (USGAN), Transformers (Transformer, iTransformer, ETSformer, Crossformer, Informer, Autoformer, PatchTST), diffusion-based models (CSDI), GNNs (StemGNN), frequency-based models (FreTS, FILM), and other classical models (SAITS, TimesNet, MICN, SCINet, Koopa, DLinear, GP-VAE). Due to space constraints, the main paper presents results only for the six best-performing baselines—CSDI, iTransformer, Crossformer, PatchTST, FreTS, and Koopa—while the complete comparison with all baselines is provided on GitHub.
+We evaluate the performance of C2FFormer and the baseline methods, under two missing data scenarios: Random Missing (RM) and Block-wise Missing (BWM). 
 
-![a242a7fe3698ad65fed1b82ff01480a1_720](README.assets/a242a7fe3698ad65fed1b82ff01480a1_720.png)
+![image-20251121174341298](README.assets/image-20251121174341298.png)
 
-![f0dcb9d4c210cbe55997d411b20694e4_720](README.assets/f0dcb9d4c210cbe55997d411b20694e4_720.png)
+![image-20251121174330825](README.assets/image-20251121174330825.png)
 
-![be1ee868352372853127f312b46317c2_720](README.assets/be1ee868352372853127f312b46317c2_720.png)
+![image-20251121174134187](README.assets/image-20251121174134187.png)
 
+![image-20251121174218874](README.assets/image-20251121174218874.png)
 
+![image-20251121174235639](README.assets/image-20251121174235639.png)
 
-![28416659df93e522d43ff6feb556c742_720](README.assets/28416659df93e522d43ff6feb556c742_720.png)
+![image-20251121174254337](README.assets/image-20251121174254337.png)
 
 ## 2. Ablation Study
 
-To evaluate the contribution of the key components in C2FFormer, we perform ablation experiments by removing the Error Correction (EC) module and the Autoregressive Patching (AP) mechanism individually. Table below reports the results under RM with 50% missing rates and BMW scenarios. Removing the EC module and AP mechanism increases MAE by 31.25% and 47.17%, respectively, in the RM scenario, while in BMW the increases reach 34.46% and 24.99%. These results demonstrate that both EC and AP are essential for achieving accurate imputation. AP is particularly important for handling imputation under the BMW scenario, while EC provides consistent accuracy improvements in both RM and BMW settings.
+To assess the effectiveness of the core components in C2FFormer, we conduct ablation studies by removing either the Error Correction (EC) module or the Autoregressive Patching (AP) mechanism, evaluated on six datasets across both random missing and block-wise missing scenarios under all missing rates.
 
-![as](README.assets/as.png)
 
-## 3. Generalization Study Across Missing Scenarios
 
-This section poses a more challenging test of C2FFormer's generalization ability, evaluating whether it can transfer across different missing scenarios. Specifically, C2FFormer is trained under the BMW setting and then tested on RM to assess its capability to produce correct imputations without retraining. From the table, C2FFormer shows strong adaptability across different missing scenarios, achieving performance almost identical to that obtained when trained under the RM settings, with relative differences below 5% across all metrics. This demonstrates its strong generalization capability, enabling accurate imputation at varying missing rates and scenarios with only a single training process.
+![image-20251121175006847](README.assets/image-20251121175006847.png)
 
-![image-20251125235037533](README.assets/image-20251125235037533.png)
+![image-20251121175016034](README.assets/image-20251121175016034.png)
 
-## 4.Visual comparison
+## 2. Generalization Study
 
-![image-20251126124518175](README.assets/image-20251126124518175.png)
+To evaluate the generalization capability of C2FFormer, we conduct experiments on the Italy air dataset: models are trained under a specific missing pattern (eithe RM or BWM) at a fixed rate, and then tested under both RM and BWM conditions across all missing rates (10\%, 50\%, 90\%).
 
+![image-20251121175030929](README.assets/image-20251121175030929.png)
+
+## 3. Train&Inference Time
+
+we compares the training and inference time of different imputation methods. 
+
+![image-20251121180635536](README.assets/image-20251121180635536.png)
